@@ -12,6 +12,7 @@ import java.time.LocalTime;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
+@Table(name = "points")
 public class Point {
 
     @Id
