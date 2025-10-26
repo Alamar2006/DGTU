@@ -3,14 +3,13 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "npm install --legacy-peer-deps && next dev",
-    "build": "npm install --legacy-peer-deps && next build",
+    "dev": "npm dev",
+    "build": "npm build",
     "start": "next start",
     "lint": "eslint",
     "install-deps": "npm install --legacy-peer-deps"
   },
   "dependencies": {
-    "@pbe/react-yandex-maps": "^1.2.5",
     "@radix-ui/react-separator": "^1.1.7",
     "antd": "^5.27.6",
     "axios": "^1.12.2",
@@ -22,7 +21,8 @@
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
     "react-use": "^17.6.0",
-    "shadcn": "^3.5.0"
+    "shadcn": "^3.5.0",
+    "yandex-maps-react": "^1.0.3"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
