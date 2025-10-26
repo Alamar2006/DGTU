@@ -204,6 +204,7 @@ export const SideBar: React.FC<Props> = ({
                     </Form.Item>
                 </Form>
             </Modal>
+            {/* НАДО БЫЛО ПЕРЕНЕСТИ В ОТДЕЛЬНЫЙ ФАЙЛИК) */}
             
         </>
     )

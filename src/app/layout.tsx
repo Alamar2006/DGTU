@@ -10,7 +10,7 @@ const nunito = Nunito({
 });
 
 export const metadata: Metadata = {
-  title: "some staff",
+  title: "Интеллектуальный планировщик",
 };
 
 export default function RootLayout({

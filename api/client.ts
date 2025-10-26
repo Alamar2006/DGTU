@@ -12,7 +12,7 @@ export interface ClientMainData {
 
 export interface ClientCoords {
     latitude: string;
-    longtude: string;  
+    longitude: string;  
 }
 
 export interface ClientFullResponse {
