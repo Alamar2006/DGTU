@@ -6,7 +6,8 @@
     "dev": "npm install --legacy-peer-deps && next dev",
     "build": "npm install --legacy-peer-deps && next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "install-deps": "npm install --legacy-peer-deps"
   },
   "dependencies": {
     "@pbe/react-yandex-maps": "^1.2.5",
@@ -16,10 +17,10 @@
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "lucide-react": "^0.548.0",
-    "next": "16.0.0",
+    "next": "^16.0.0",
     "next-themes": "^0.4.6",
-    "react": "19.2.0",
-    "react-dom": "19.2.0",
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0",
     "react-use": "^17.6.0",
     "shadcn": "^3.5.0"
   },
