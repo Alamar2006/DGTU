@@ -1,4 +1,5 @@
-import { ChevronUp, LayoutGrid, SunMedium} from "lucide-react";
+import { ChevronUp, LayoutGrid} from "lucide-react";
+import { ThemeToggle } from "./themeToggle";
 
 interface Props {
     className?: string;
@@ -12,12 +13,12 @@ export const Header: React.FC<Props> = ({
     setIsOpen
 }) => {
     return (
-        <header className='border-b sticky top-0 left-0 right-0 z-50 bg-white'>
+        <header className='border-b sticky top-0 left-0 right-0 z-50 bg-[#f8fafc] dark:bg-[#0f172a] text-black dark:text-white'>
             <div className="mx-auto px-4 flex items-center justify-between py-4">
                 
                 {/* Left part */} 
                 <button className="flex items-center gap-1 cursor-pointer" onClick={setIsOpen}>
-                     {isOpen ? <ChevronUp/> : <LayoutGrid/>}
+                     {isOpen ? '' : <LayoutGrid/>}
                 </button>
 
                 {/* Middle */}
@@ -27,9 +28,7 @@ export const Header: React.FC<Props> = ({
 
                 {/* Right part */}
                 <div className="flex items-center gap-3 cursor-pointer">
-                    <button className="flex items-center gap-1 cursor-pointer">
-                        <SunMedium/> 
-                    </button>
+                <ThemeToggle/>
                 </div>
             </div>
         </header>

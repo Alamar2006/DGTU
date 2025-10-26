@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Nunito } from "next/font/google";
 import "./globals.css";
+import { ThemeProvider } from "next-themes";
 
 const nunito = Nunito({
   variable: '--font-nunito',
@@ -18,9 +19,13 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <body className={`${nunito.variable} antialiased`}>
-        <main className="min-h-screen" >{children}</main>
+      <ThemeProvider attribute='class' enableSystem defaultTheme="system">
+          <main className="min-h-screen">
+            {children}
+          </main>
+        </ThemeProvider>
       </body>
     </html>
   );

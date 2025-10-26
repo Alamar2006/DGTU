@@ -1,5 +1,5 @@
 'use client'
-import { Table, Card, Button, Space, Tag, message, Spin } from "antd";
+import { Table, Card, Button, Space, Tag, message, Spin, Result } from "antd";
 import { useClients } from "../../../../hooks/useClients"; 
 import { ReloadOutlined } from "@ant-design/icons";
 import { ClientMainData } from "../../../../api/client";
@@ -64,15 +64,32 @@ export const ClientsList: React.FC = () => {
     // Если ошибка
     if (error) {
         return (
-            <Card>
-                <div style={{ textAlign: 'center', padding: '20px' }}>
-                    <h3 style={{ color: '#ff4d4f' }}>Ошибка загрузки данных</h3>
-                    <p>{error}</p>
-                    <Button type="primary" onClick={handleRefresh}>
-                        Повторить попытку
-                    </Button>
-                </div>
-            </Card>
+            <Card className="flex items-center justify-center min-h-[300px] border-0 shadow-md rounded-xl">
+  <div className="text-center p-6 max-w-sm mx-auto">
+    <Result
+      title={
+        <span className="text-base font-medium text-gray-800 dark:text-gray-200">
+          Ошибка загрузки данных
+        </span>
+      }
+      extra={
+        <Button 
+          onClick={handleRefresh} 
+          type="primary" 
+          key="repeat"
+          className="h-9 px-5 bg-blue-600 hover:bg-blue-700 border-0 rounded-lg font-medium text-sm shadow-sm hover:shadow transition-all"
+        >
+          Повторить попытку
+        </Button>
+      }
+    />
+    {error && (
+      <p className="mt-3 px-3 py-2 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded text-red-600 dark:text-red-400 text-xs">
+        {error}
+      </p>
+    )}
+  </div>
+</Card>
         );
     }
 

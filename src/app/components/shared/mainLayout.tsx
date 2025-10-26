@@ -11,25 +11,6 @@ interface Props {
 }
 
 export const MainLayout: React.FC<Props> = () => {
- 
-    // {
-    //     "clients": [
-    //       {
-    //         "id": 1,
-    //         "address": "ул. Ленина 1",
-    //         "dayStart": "09:00",
-    //         "dayEnd": "18:00",
-    //         "priority": "high"
-    //       }
-    //     ],
-    //     "coords": {
-    //       "1": {
-    //         "latitude": "55.7558",
-    //         "longtude": "37.6173"
-    //       }
-    //     }
-    //   }
-
     const {coords, loading, error} = useClients()
     const { contextHolder, showError } = useNotification()
 
