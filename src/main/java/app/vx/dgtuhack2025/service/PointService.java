@@ -33,29 +33,15 @@ public class PointService {
     private YandexMapsService yandexMapsService;
 
     @Autowired
-    private OsrmService osrmService;
+    private TravelTimeService travelTimeService;
 
     //@Async
     @Transactional
-    public void addPoint (PointResponseDTO dto, HttpServletRequest request) {
+    public CompletableFuture<MatrixAndPFDTO> addPoint (PointResponseDTO dto, HttpServletRequest request) {
         String sessionId = request.getSession().getId();
         Point point = convertToEntity(dto, sessionId);
         saveCoords(dto);
         pointRepository.save(point);
-    }
-
-    @Async
-    @Transactional
-    public CompletableFuture<MatrixAndPFDTO> addPoints(List<PointResponseDTO> dtos, HttpServletRequest request) {
-        String sessionId = request.getSession().getId();
-
-        // Сохранение точек
-        List<Point> points = dtos.stream()
-                .map(dto -> convertToEntity(dto, sessionId))
-                .collect(Collectors.toList());
-        pointRepository.saveAll(points);
-
-        // Асинхронная генерация матрицы
         return CompletableFuture.supplyAsync(() -> {
             List<PointResponseDTO> newDto = pointRepository.findsBySessionId(sessionId).stream()
                     .map(this::convertToDto)
@@ -64,14 +50,48 @@ public class PointService {
         });
     }
 
+    @Transactional
+    public CompletableFuture<MatrixAndPFDTO> addPoints (List<PointResponseDTO> dtos, HttpServletRequest request) {
+        try {
+            String sessionId = request.getSession().getId();
+            List<Point> points = dtos.stream()
+                    .map(dto -> convertToEntity(dto, sessionId))
+                    .collect(Collectors.toList());
+            dtos.forEach(this::saveCoords);
+            pointRepository.saveAll(points);
+
+            List<PointResponseDTO> newDto = pointRepository.findAll().stream()
+                    .map(this::convertToDto)
+                    .toList();
+
+            MatrixAndPFDTO matrixAndPFDTO = genMatrix(newDto);
+
+            return CompletableFuture.completedFuture(matrixAndPFDTO);
+        } catch (Exception e) {
+            throw new RuntimeException();
+        }
+    }
     
 
     public void deletePoint (Long id) {
         pointRepository.findAll();
     }
 
-    public List<Point> getAllById (HttpServletRequest request) {
-        return pointRepository.findsBySessionId(request.getSession().getId());
+    public DatasResponseDTO getAllById (HttpServletRequest request) {
+        DatasResponseDTO dto = new DatasResponseDTO();
+        String sessionId = request.getSession().getId();
+
+        List<PointRequestDTO> newDto = pointRepository.findsBySessionId(sessionId).stream()
+                .map(this::convertToDtoRequest)
+                .toList();
+        List<CoordinatesResponseDTO> dtoList = new ArrayList<>();
+        for (PointRequestDTO pointRequestDTO : newDto) {
+            Optional<Place> place = placeRepository.findById(pointRequestDTO.getAddress());
+            dtoList.add(convertToDto(place));
+        }
+        dto.setClients(newDto);
+        dto.setCoords(dtoList);
+        return dto;
     }
 
     public List<Point> getAll () {
@@ -79,7 +99,7 @@ public class PointService {
     }
 
     private MatrixAndPFDTO genMatrix (List<PointResponseDTO> dtos) {
-        List<OsrmPoint> points = dtos.stream()
+        List<LocationDTO> points = dtos.stream()
                 .map(this::convertToCoords)
                 .toList();
 
@@ -88,6 +108,13 @@ public class PointService {
         result.setPointsFeatures(generatePointsFeatures(dtos));
 
         return result;
+    }
+
+    private CoordinatesResponseDTO convertToDto (Optional<Place> place) {
+        CoordinatesResponseDTO newDto = new CoordinatesResponseDTO();
+        newDto.setLatitude(place.get().getLatitude());
+        newDto.setLongitude(place.get().getLongitude());
+        return newDto;
     }
 
     private Point convertToEntity(PointResponseDTO dto, String sessionId) {
@@ -100,6 +127,7 @@ public class PointService {
         point.setPriority(dto.getPriority());
         point.setSessionId(sessionId);
         point.setCreatedAt(LocalDateTime.now());
+        saveCoords(dto);
         return point;
     }
 
@@ -114,14 +142,22 @@ public class PointService {
         return dto;
     }
 
-    /*public DatasResponseDTO getNow () {
-        List<Point> points = routeRepository.findByDate(LocalDate.now()).get().getPoints();
-        List<CoordinatesResponseDTO> coords = new ArrayList<>();
-    }*/
+    private PointRequestDTO convertToDtoRequest (Point point) {
+        PointRequestDTO dto = new PointRequestDTO();
+        dto.setId(point.getId());
+        dto.setAddress(point.getAddress());
+        dto.setDayStart(point.getDayStart());
+        dto.setDayEnd(point.getDayEnd());
+        dto.setLunchStart(point.getLunchStart());
+        dto.setLunchEnd(point.getLunchEnd());
+        dto.setPriority(point.getPriority());
+        return dto;
+    }
 
 
-    public OsrmPoint convertToCoords (PointResponseDTO dto) {
-        OsrmPoint dto1 = new OsrmPoint();
+
+    public LocationDTO convertToCoords (PointResponseDTO dto) {
+        LocationDTO dto1 = new LocationDTO();
         String addressId = dto.getAddress();
 
         Place place = placeRepository.findById(addressId).get();
@@ -151,14 +187,14 @@ public class PointService {
         log.info("COORDS SAVE");
     }
 
-    public OsrmPoint convertToCoords (CoordinatesDTO dto) {
-        OsrmPoint osrmPoint = new OsrmPoint();
-        osrmPoint.setLatitude(dto.getLatitude());
-        osrmPoint.setLongitude(dto.getLongitude());
-        return osrmPoint;
+    public LocationDTO convertToCoords (CoordinatesDTO dto) {
+        LocationDTO locationDTO = new LocationDTO();
+        locationDTO.setLatitude(dto.getLatitude());
+        locationDTO.setLongitude(dto.getLongitude());
+        return locationDTO;
     }
 
-    public Map<String, Map<String, String>> generateMatrix (List<OsrmPoint> points) {
+    public Map<String, Map<String, String>> generateMatrix (List<LocationDTO> points) {
         Map<String, Map<String, String>> matrix = new HashMap<>();
         int size = points.size();
 
@@ -168,7 +204,7 @@ public class PointService {
                 if (i == j) {
                     row.put(String.valueOf(j + 1), "00:00:00");
                 } else {
-                    Duration travelTime = osrmService.getTravelTime(points.get(i), points.get(j));
+                    Duration travelTime = travelTimeService.calculateTravelTime(points.get(i), points.get(j), 60);
                     String timeStr = formatDuration(travelTime);
                     row.put(String.valueOf(j + 1), timeStr);
                 }

@@ -1,5 +1,7 @@
 package app.vx.dgtuhack2025.controller;
 
+import app.vx.dgtuhack2025.dto.DatasResponseDTO;
+import app.vx.dgtuhack2025.dto.PointRequestDTO;
 import app.vx.dgtuhack2025.dto.PointResponseDTO;
 import app.vx.dgtuhack2025.entity.Place;
 import app.vx.dgtuhack2025.entity.Point;
@@ -25,8 +27,7 @@ public class PointController {
 
     @PostMapping("/addOne")
     public ResponseEntity<?> addToRoute (@RequestBody PointResponseDTO dto, HttpServletRequest request) {
-        pointService.addPoint(dto, request);
-        return ResponseEntity.ok(HttpStatus.OK);
+        return ResponseEntity.ok(pointService.addPoint(dto, request));
     }
 
     /*@GetMapping("/getNow")
@@ -40,7 +41,7 @@ public class PointController {
     }
 
     @GetMapping("/getAllById")
-    public List<Point> getAllById (HttpServletRequest request) {
+    public DatasResponseDTO getAllById (HttpServletRequest request) {
         return pointService.getAllById(request);
     }
 

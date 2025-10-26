@@ -7,7 +7,7 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class OsrmPoint {
+public class Location {
     private double latitude;
     private double longitude;
 }
