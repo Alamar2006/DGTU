@@ -1,4 +1,4 @@
 {
-    "installCommand": "npm install --legacy-peer-deps --force",
+    "installCommand": "rm -rf node_modules package-lock.json && npm install --legacy-peer-deps --force",
     "buildCommand": "npm run build"
   }
